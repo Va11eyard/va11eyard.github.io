@@ -135,14 +135,7 @@ export default function RootLayout({
           </RevealFx>
           <Flex fillWidth minHeight="16" s={{ hide: true }} />
           <Header />
-          <Flex
-            zIndex={0}
-            fillWidth
-            padding="l"
-            horizontal="center"
-            flex={1}
-            paddingTop="64"
-          >
+          <Flex zIndex={0} fillWidth padding="l" horizontal="center" flex={1}>
             <Flex horizontal="center" fillWidth minHeight="0">
               {children}
             </Flex>

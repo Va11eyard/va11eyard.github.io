@@ -34,54 +34,149 @@ const bullets = (description: string) =>
 
 const img = (src: string) => `${basePath}${src}`;
 
-export default function Home() {
+// Only brands with a real logo get one; everything else renders as plain text.
+const skillIcon: Record<string, string> = {
+  Python: 'python',
+  Go: 'go',
+  TypeScript: 'typescript',
+  JavaScript: 'javascript',
+  SQL: '',
+  PyTorch: 'pytorch',
+  MONAI: '',
+  'Hugging Face Transformers': 'huggingface',
+  'RAG pipelines': '',
+  'LLM APIs': '',
+  'STT / NLP': '',
+  'Computer Vision': '',
+  FastAPI: 'fastapi',
+  React: 'react',
+  'Next.js': 'nextjs',
+  Vite: 'vite',
+  'Tailwind CSS': 'tailwindcss',
+  'ShadCN UI': '',
+  PostgreSQL: 'postgresql',
+  MongoDB: 'mongodb',
+  Docker: 'docker',
+  Linux: 'linux',
+  'CI/CD (GitHub Actions)': 'githubactions',
+  WebRTC: '',
+  Figma: 'figma',
+  'UI/UX': '',
+  'Design systems': '',
+  'Next.js 16': 'nextjs',
+  'React 19': 'react',
+  'Three.js': 'threedotjs',
+  MediaPipe: '',
+  Embeddings: '',
+  CUSUM: '',
+  'Clean Architecture': '',
+  'Docker Compose': 'docker',
+  'Kazakh NLP': '',
+  STT: '',
+  'Retinal imaging': '',
+  'Open data': '',
+  'Go API': 'go',
+};
+
+// Projects without a public repository link to the GitHub profile instead of
+// staying dead, so every card is clickable somewhere real.
+const GITHUB_PROFILE = `https://github.com/${resume.header.contacts.github}`;
+
+async function getGitHubStats() {
+  const fallback = { repos: 44, stars: 2 };
+  try {
+    const headers = { 'User-Agent': 'personal-site-build' };
+    const [user, repos] = await Promise.all([
+      fetch('https://api.github.com/users/Va11eyard', { headers }).then((r) => r.json()),
+      fetch('https://api.github.com/users/Va11eyard/repos?per_page=100', { headers }).then((r) => r.json()),
+    ]);
+    return {
+      repos: typeof user.public_repos === 'number' ? user.public_repos : fallback.repos,
+      stars: Array.isArray(repos)
+        ? repos.reduce((sum, r) => sum + (r.stargazers_count || 0), 0)
+        : fallback.stars,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+export default async function Home() {
+  const stats = await getGitHubStats();
+
+  const dashboard = [
+    { value: '2', label: 'Publications', sub: 'IEEE SIST · Zenodo' },
+    { value: '6', label: 'Platforms shipped', sub: 'Galamat Group · DAISY' },
+    { value: String(stats.repos), label: 'Public repositories', sub: 'github.com/Va11eyard' },
+    { value: String(stats.stars), label: 'GitHub stars', sub: 'across public work' },
+    { value: '2027', label: 'MSc Applied AI', sub: 'Astana IT University' },
+  ];
+
   return (
-    <Column maxWidth="m" gap="xl" paddingY="20" horizontal="center" fillWidth>
+    <Column maxWidth="m" gap="xl" paddingY="12" horizontal="center">
       {/* Person */}
       <Column fillWidth horizontal="center" align="center" gap="m">
-        <RevealFx translateY="12">
-          <Avatar src={img(person.avatar)} size="xl" />
-        </RevealFx>
+        <Avatar src={img(person.avatar)} size="xl" />
         <Column horizontal="center" align="center" gap="8">
-          <RevealFx translateY="12" delay={0.05}>
-            <Heading variant="display-strong-l">{person.name}</Heading>
-          </RevealFx>
-          <RevealFx translateY="12" delay={0.1}>
-            <Text variant="heading-default-m" onBackground="neutral-weak">
-              {person.role}
+          <Heading variant="display-strong-l">{person.name}</Heading>
+          <Text variant="heading-default-m" onBackground="neutral-weak">
+            {person.role}
+          </Text>
+          <Row gap="8" vertical="center" marginTop="4">
+            <Icon onBackground="brand-weak" name="globe" size="s" />
+            <Text variant="body-default-s" onBackground="neutral-weak">
+              {person.location}
             </Text>
-          </RevealFx>
-          <RevealFx translateY="12" delay={0.15}>
-            <Row gap="8" vertical="center" marginTop="4">
-              <Icon onBackground="brand-weak" name="globe" size="s" />
-              <Text variant="body-default-s" onBackground="neutral-weak">
-                {person.location}
-              </Text>
-            </Row>
-          </RevealFx>
-        </Column>
-        <RevealFx translateY="12" delay={0.2}>
-          <Row wrap gap="8" horizontal="center">
-            {languages.map((language) => (
-              <Tag key={language} size="l">
-                {language}
-              </Tag>
-            ))}
           </Row>
+        </Column>
+        <Row wrap gap="8" horizontal="center">
+          {languages.map((language) => (
+            <Tag key={language} size="l">
+              {language}
+            </Tag>
+          ))}
+        </Row>
+        <Row wrap gap="8" horizontal="center" paddingTop="4">
+          {social.map((item) => (
+            <Button
+              key={item.name}
+              href={item.link}
+              prefixIcon={item.icon}
+              label={item.name}
+              size="s"
+              weight="default"
+              variant="secondary"
+            />
+          ))}
+        </Row>
+      </Column>
+
+      {/* Dashboard */}
+      <Column fillWidth gap="m">
+        <RevealFx translateY="12">
+          <Heading as="h2" variant="display-strong-s">
+            At a glance
+          </Heading>
         </RevealFx>
-        <RevealFx translateY="12" delay={0.25}>
-          <Row wrap gap="8" horizontal="center" paddingTop="4">
-            {social.map((item) => (
-              <Button
-                key={item.name}
-                href={item.link}
-                prefixIcon={item.icon}
-                label={item.name}
-                size="s"
-                weight="default"
-                variant="secondary"
-                arrowIcon={false}
-              />
+        <Line />
+        <RevealFx translateY="12">
+          <Row wrap gap="12" fillWidth>
+            {dashboard.map((tile) => (
+              <Column
+                key={tile.label}
+                background="surface"
+                border="neutral-alpha-medium"
+                radius="l"
+                padding="20"
+                gap="4"
+                fitWidth
+              >
+                <Text variant="display-strong-xl">{tile.value}</Text>
+                <Text variant="heading-strong-xs">{tile.label}</Text>
+                <Text variant="body-default-xs" onBackground="neutral-weak">
+                  {tile.sub}
+                </Text>
+              </Column>
             ))}
           </Row>
         </RevealFx>
@@ -217,50 +312,57 @@ export default function Home() {
           </Heading>
         </RevealFx>
         <Line />
-        {resume.projects.map((project, index) => (
-          <RevealFx key={project.name} translateY="12" delay={index * 0.04}>
-            <Column fillWidth gap="8" paddingY="8">
-              <Row fillWidth gap="8" vertical="center" horizontal="between" wrap>
-                <Row gap="8" vertical="center">
-                  <Text variant="heading-strong-m">
-                    {project.link ? (
+        {resume.projects.map((project, index) => {
+          const link = project.link ?? GITHUB_PROFILE;
+          const isRepo = Boolean(project.link);
+          return (
+            <RevealFx key={project.name} translateY="12" delay={index * 0.04}>
+              <Column fillWidth gap="8" paddingY="8">
+                <Row fillWidth gap="8" vertical="center" horizontal="between" wrap>
+                  <Row gap="8" vertical="center">
+                    <Text variant="heading-strong-m">
                       <a
-                        href={project.link}
+                        href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: 'inherit' }}
+                        style={{ color: 'inherit', textDecoration: 'none' }}
                       >
                         {project.name}
+                        <Icon
+                          name="arrowUpRight"
+                          size="xs"
+                          onBackground={isRepo ? 'brand-weak' : 'neutral-weak'}
+                          marginLeft="4"
+                          style={{ verticalAlign: 'baseline' }}
+                        />
                       </a>
-                    ) : (
-                      project.name
+                    </Text>
+                    {project.role && (
+                      <Text variant="body-default-s" onBackground="neutral-weak">
+                        {project.role}
+                      </Text>
                     )}
-                  </Text>
-                  {project.role && (
-                    <Text variant="body-default-s" onBackground="neutral-weak">
-                      {project.role}
+                  </Row>
+                  {project.period && (
+                    <Text variant="heading-default-xs" onBackground="neutral-weak">
+                      {project.period}
                     </Text>
                   )}
                 </Row>
-                {project.period && (
-                  <Text variant="heading-default-xs" onBackground="neutral-weak">
-                    {project.period}
-                  </Text>
+                <Text variant="body-default-m">{project.description}</Text>
+                {project.stack && project.stack.length > 0 && (
+                  <Row wrap gap="8" paddingTop="4">
+                    {project.stack.map((tech) => (
+                      <Tag key={tech} size="s" prefixIcon={skillIcon[tech] || undefined}>
+                        {tech}
+                      </Tag>
+                    ))}
+                  </Row>
                 )}
-              </Row>
-              <Text variant="body-default-m">{project.description}</Text>
-              {project.stack && project.stack.length > 0 && (
-                <Row wrap gap="8" paddingTop="4">
-                  {project.stack.map((tech) => (
-                    <Tag key={tech} size="s">
-                      {tech}
-                    </Tag>
-                  ))}
-                </Row>
-              )}
-            </Column>
-          </RevealFx>
-        ))}
+              </Column>
+            </RevealFx>
+          );
+        })}
       </Column>
 
       {/* Skills */}
@@ -279,7 +381,7 @@ export default function Home() {
               </Column>
               <Row wrap gap="8">
                 {skill.tags.map((tag) => (
-                  <Tag key={tag} size="l">
+                  <Tag key={tag} size="l" prefixIcon={skillIcon[tag] || undefined}>
                     {tag}
                   </Tag>
                 ))}
