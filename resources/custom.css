@@ -1,0 +1,31 @@
+/* Light-mode tuning and print output on top of Once UI tokens. */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Once UI's translucent surfaces are designed against a visible page tint;
+   on plain white they flatten out. A barely-there warm cast restores depth
+   without introducing a color scheme. */
+:root[data-theme='light'] body {
+  background-color: #fafaf8;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+  header,
+  footer,
+  canvas,
+  [data-background] {
+    display: none !important;
+  }
+  main [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  a {
+    text-decoration: none;
+  }
+}
