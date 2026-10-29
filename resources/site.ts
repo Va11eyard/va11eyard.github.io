@@ -70,3 +70,8 @@ export const skillGroups = [
 
 export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://va11eyard.github.io';
+
+// The public API and the Actions token both belong to identities that cannot
+// see his private repos, so this number is read with his own `gh` session and
+// baked by hand (45 owned private, verified 2026-10-29).
+export const privateRepos = 45;

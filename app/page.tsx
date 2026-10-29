@@ -10,7 +10,7 @@ import {
   Tag,
   Text,
 } from '@once-ui-system/core';
-import { basePath, languages, person, skillGroups, social } from '@/resources/site';
+import { basePath, languages, person, privateRepos, skillGroups, social } from '@/resources/site';
 import { resume } from '@/content/resume';
 import { STATUS_LABEL } from '@/lib/resume';
 
@@ -101,15 +101,53 @@ async function getGitHubStats() {
   }
 }
 
+// Turn bare DOI strings in an identifier line into real doi.org links.
+function withDoiLinks(text: string) {
+  return text.split(/(10\.\d{4,9}\/[\w.\-/]+)/g).map((part, i) =>
+    /^10\.\d{4,9}\//.test(part) ? (
+      <a
+        key={i}
+        href={`https://doi.org/${part}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}
+      >
+        {part}
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+}
+
 export default async function Home() {
   const stats = await getGitHubStats();
 
   const dashboard = [
-    { value: '2', label: 'Publications', sub: 'IEEE SIST · Zenodo' },
-    { value: '6', label: 'Platforms shipped', sub: 'Galamat Group · DAISY' },
-    { value: String(stats.repos), label: 'Public repositories', sub: 'github.com/Va11eyard' },
-    { value: String(stats.stars), label: 'GitHub stars', sub: 'across public work' },
-    { value: '2027', label: 'MSc Applied AI', sub: 'Astana IT University' },
+    { value: '2', label: 'Publications', sub: 'IEEE SIST · Zenodo', href: '#publications' },
+    { value: '6', label: 'Platforms shipped', sub: 'Galamat Group · DAISY', href: '#experience' },
+    {
+      value: String(stats.repos),
+      label: 'Public repositories',
+      sub: 'owned · GitHub',
+      href: `${GITHUB_PROFILE}?tab=repositories`,
+      external: true,
+    },
+    {
+      value: String(privateRepos),
+      label: 'Private repositories',
+      sub: 'owned · in development',
+      href: GITHUB_PROFILE,
+      external: true,
+    },
+    {
+      value: String(stats.stars),
+      label: 'GitHub stars',
+      sub: 'across public work',
+      href: 'https://github.com/Va11eyard/turnshift',
+      external: true,
+    },
+    { value: '2027', label: 'MSc Applied AI', sub: 'Astana IT University', href: '#studies' },
   ];
 
   return (
@@ -162,21 +200,29 @@ export default async function Home() {
         <RevealFx translateY="12">
           <Row wrap gap="12" fillWidth>
             {dashboard.map((tile) => (
-              <Column
+              <a
                 key={tile.label}
-                background="surface"
-                border="neutral-alpha-medium"
-                radius="l"
-                padding="20"
-                gap="4"
-                fitWidth
+                href={tile.href}
+                {...('external' in tile && tile.external
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : {})}
+                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
               >
-                <Text variant="display-strong-xl">{tile.value}</Text>
-                <Text variant="heading-strong-xs">{tile.label}</Text>
-                <Text variant="body-default-xs" onBackground="neutral-weak">
-                  {tile.sub}
-                </Text>
-              </Column>
+                <Column
+                  background="surface"
+                  border="neutral-alpha-medium"
+                  radius="l"
+                  padding="20"
+                  gap="4"
+                  fitWidth
+                >
+                  <Text variant="display-strong-xl">{tile.value}</Text>
+                  <Text variant="heading-strong-xs">{tile.label}</Text>
+                  <Text variant="body-default-xs" onBackground="neutral-weak">
+                    {tile.sub}
+                  </Text>
+                </Column>
+              </a>
             ))}
           </Row>
         </RevealFx>
@@ -234,7 +280,7 @@ export default async function Home() {
       </Column>
 
       {/* Education */}
-      <Column fillWidth gap="l">
+      <Column fillWidth gap="l" id="studies">
         <RevealFx translateY="12">
           <Heading as="h2" variant="display-strong-s">
             Studies
@@ -297,7 +343,12 @@ export default async function Home() {
               </Text>
               <Text variant="body-default-m" onBackground="brand-weak">
                 {publication.venue}
-                {publication.identifier ? ` · ${publication.identifier}` : ''}
+                {publication.identifier ? (
+                  <>
+                    {' · '}
+                    {withDoiLinks(publication.identifier)}
+                  </>
+                ) : null}
               </Text>
             </Column>
           </RevealFx>
