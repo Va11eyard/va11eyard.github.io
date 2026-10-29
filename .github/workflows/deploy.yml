@@ -1,0 +1,70 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A user site (owner.github.io) serves from the root; a project repo
+      # serves from /repo-name, and the export needs that as its base path.
+      # GitHub treats owner and repo names case-insensitively, so compare
+      # lowercased or a "Va11eyard" login would miss "va11eyard.github.io".
+      - name: Resolve base path and site URL
+        run: |
+          owner="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          repo="$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')"
+          if [ "$repo" = "$owner.github.io" ]; then
+            echo "NEXT_PUBLIC_BASE_PATH=" >> "$GITHUB_ENV"
+            echo "NEXT_PUBLIC_SITE_URL=https://$owner.github.io" >> "$GITHUB_ENV"
+          else
+            echo "NEXT_PUBLIC_BASE_PATH=/$repo" >> "$GITHUB_ENV"
+            echo "NEXT_PUBLIC_SITE_URL=https://$owner.github.io/$repo" >> "$GITHUB_ENV"
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+      # Without this, Pages runs Jekyll and drops files starting with an underscore.
+      - name: Disable Jekyll
+        run: touch out/.nojekyll
+
+      # enablement turns Pages on with the "GitHub Actions" build source the
+      # first time this runs, instead of failing on a brand-new repo.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
