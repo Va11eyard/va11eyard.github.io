@@ -216,7 +216,7 @@ export default async function Home() {
                   padding="20"
                   gap="4"
                 >
-                  <Text variant="display-strong-xl">{tile.value}</Text>
+                  <Text variant="display-strong-l">{tile.value}</Text>
                   <Text variant="heading-strong-xs">{tile.label}</Text>
                   <Text variant="body-default-xs" onBackground="neutral-weak">
                     {tile.sub}
