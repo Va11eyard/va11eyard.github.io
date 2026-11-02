@@ -198,7 +198,7 @@ export default async function Home() {
         </RevealFx>
         <Line />
         <RevealFx translateY="12">
-          <Row wrap gap="12" fillWidth>
+          <div className="dash-grid">
             {dashboard.map((tile) => (
               <a
                 key={tile.label}
@@ -206,15 +206,15 @@ export default async function Home() {
                 {...('external' in tile && tile.external
                   ? { target: '_blank', rel: 'noopener noreferrer' }
                   : {})}
-                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                className="dash-tile"
               >
                 <Column
+                  fill
                   background="surface"
                   border="neutral-alpha-medium"
                   radius="l"
                   padding="20"
                   gap="4"
-                  fitWidth
                 >
                   <Text variant="display-strong-xl">{tile.value}</Text>
                   <Text variant="heading-strong-xs">{tile.label}</Text>
@@ -224,7 +224,7 @@ export default async function Home() {
                 </Column>
               </a>
             ))}
-          </Row>
+          </div>
         </RevealFx>
       </Column>
 
