@@ -11,7 +11,7 @@ export const resume = {
   header: {
     name: 'Dinmukhammed Mynzhassar',
     shortAbout:
-      'Full-Stack Developer (React, TypeScript, Next.js, Go, Python, Java), UI/UX Designer, ML Engineer',
+      'CTO at Galamat Group · Full-Stack Developer (React, TypeScript, Next.js, Go, Python), UI/UX Designer, ML Engineer',
     location: 'Astana, Kazakhstan',
     contacts: {
       email: 'mynzhasardimash@gmail.com',
@@ -47,14 +47,14 @@ export const resume = {
   },
 
   summary:
-    'I build medical AI systems end to end: segmentation models in MONAI, RAG pipelines over clinical knowledge bases, and the Go and Next.js services that put them in front of patients and clinicians. I work as a full-stack and ML engineer in Astana on platforms covering psychology, urology, ophthalmology and lab-result interpretation. My chest X-ray segmentation work was published at IEEE SIST 2026. I am a master’s student in Applied Artificial Intelligence at Astana IT University (2025-2027).',
+    'I build medical AI systems end to end: segmentation models in MONAI, RAG pipelines over clinical knowledge bases, and the Go and Next.js services that put them in front of patients and clinicians. As CTO of Galamat Group I lead engineering hands-on across platforms covering psychology, urology, ophthalmology and lab-result interpretation. My chest X-ray segmentation work was published at IEEE SIST 2026. I am a master’s student in Applied Artificial Intelligence at Astana IT University (2025-2027).',
 
   workExperience: [
     {
       company: 'Galamat Group',
       location: 'Astana, Kazakhstan',
       contract: 'Full-time',
-      title: 'Full Stack Developer, ML Engineer',
+      title: 'CTO',
       start: '2026-01-01',
       end: null,
       description:
